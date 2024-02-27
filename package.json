@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "sqlite3": "^5.1.7",
+    "tauri-plugin-sql-api": "https://github.com/tauri-apps/tauri-plugin-sql#v1",
+    "tauri-plugin-sqlite-api": "github:lzdyes/tauri-plugin-sqlite#v0.1.1",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },

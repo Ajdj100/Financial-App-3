@@ -4,25 +4,30 @@ import listTransaction from '../components/listTransaction.vue'
 import createFilter from '../components/createFilter.vue'
 import multiSelect from '../components/multiSelect.vue'
 
-var transactions = [
-    {
-        name: "McDonalds",
-        date: Date.now(),
-        value: 25.87,
-        tags: ["Food", "Junk"],
-    },
-    {
-        name: "Bus Pass",
-        date: Date.now(),
-        value: 10.00,
-        tags: ["Transportation"],
-    },
-    {
-        name: "Steam Game",
-        date: Date.now(),
-        value: 20.00,
-        tags: ["Entertainment"],
-    },]
+import { db } from '@/main';
+
+const transactions = await db.select < Array < any >> ('SELECT * FROM transactions');
+console.log(transactions);
+
+// var transactions = [
+//     {
+//         name: "McDonalds",
+//         date: Date.now(),
+//         value: 25.87,
+//         tags: ["Food", "Junk"],
+//     },
+//     {
+//         name: "Bus Pass",
+//         date: Date.now(),
+//         value: 10.00,
+//         tags: ["Transportation"],
+//     },
+//     {
+//         name: "Steam Game",
+//         date: Date.now(),
+//         value: 20.00,
+//         tags: ["Entertainment"],
+//     },]
 
 var tags = {
     "Food": {

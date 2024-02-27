@@ -1,32 +1,32 @@
 <script setup>
 import { ref } from 'vue'
 
-var tags = {
-    "Food": {
-        name: "Food",
-        color: "red",
-        keywords: [
-            'McDonalds',
-            'Harveys',
-            'Tim Hortons',
-            'Swiss Chalet',
-            'Pennys',
-            'Johnny Frescoes'
-        ]
-    },
-    "Junk": {
-        name: "Junk",
-        color: "orange"
-    },
-    "Transportation": {
-        name: "Transportation",
-        color: "blue"
-    },
-    "Entertainment": {
-        name: "Entertainment",
-        color: "yellow"
-    }
-};
+// var tags = {
+//     "Food": {
+//         name: "Food",
+//         color: "red",
+//         keywords: [
+//             'McDonalds',
+//             'Harveys',
+//             'Tim Hortons',
+//             'Swiss Chalet',
+//             'Pennys',
+//             'Johnny Frescoes'
+//         ]
+//     },
+//     "Junk": {
+//         name: "Junk",
+//         color: "orange"
+//     },
+//     "Transportation": {
+//         name: "Transportation",
+//         color: "blue"
+//     },
+//     "Entertainment": {
+//         name: "Entertainment",
+//         color: "yellow"
+//     }
+// };
 const colors = {
     red: {
         name: 'red',
@@ -88,6 +88,11 @@ function updateGroup() {
     currentTag.value.color = currentColor.value.name;
     tags[oldName] = currentTag.value;
 }
+
+function addFilter(group, filterText) {
+    //TODO: Implement adding filter to database
+}
+
 </script>
 
 <template>
