@@ -1,13 +1,11 @@
 import './assets/base.css'
 
 //database stuff
-import SQLite from 'tauri-plugin-sql-api';
-console.log(SQLite)
-const db = await SQLite.open('./finances.sqlite');
+import Database from "tauri-plugin-sql-api";
+const db = await Database.load("sqlite:finances.sqlite");
 
-await db.execute(`
-    INSERT INTO transactions VALUES ('Test', ?1, ?2 )
-`, [29.99, Date.now()]);
+const result = await db.execute("INSERT INTO transactions (name, value, date) VALUES (?, ?, ?)", ['test', 25.99, Date.now()]);
+console.log(result);
 
 export { db };
 
