@@ -59,7 +59,9 @@
         "height": 600,
         "resizable": true,
         "title": "financial-app-3",
-        "width": 800
+        "width": 800,
+        "minWidth": 1000,
+        "minHeight": 500
       }
     ]
   }
