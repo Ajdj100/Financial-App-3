@@ -6,8 +6,11 @@ import multiSelect from '../components/multiSelect.vue'
 
 import { db } from '@/main';
 
-const transactions = await db.select < Array < any >> ('SELECT * FROM transactions');
+var transactions = await db.select('SELECT * FROM transactions');
 console.log(transactions);
+
+// const transactions = await db.select('SELECT * FROM transactions');
+// console.log(transactions);
 
 // var transactions = [
 //     {
@@ -142,20 +145,22 @@ function test(name) {
                 </table>
             </div>
             <div class="divider 2xl:divider-horizontal sm:divider-vertical sm:m-0"></div>
-            <div class="flex shrink 2xl:flex-col sm:items-center sm:flex-row min-w-80 sm:px-5">
+            <div class="flex shrink 2xl:flex-col sm:items-start sm:flex-col min-w-80 sm:px-5">
                 <div class="flex flex-row justify-between w-full items-center">
                     <h1>Filters</h1>
                     <p class="underline text-[#3595ff] cursor-pointer">clear</p>
                 </div>
-                <div class="flex flex-row">
-                    <input type="date" class="bg-base-100 mr-2">
-                    to
-                    <input type="date" class="bg-base-100 ml-2">
+                <div class="flex sm:flex-row xl:flex-col items-center">
+                    <div class="flex">
+                        <input type="date" class="bg-base-100 mr-2">
+                        to
+                        <input type="date" class="bg-base-100 ml-2">
+                    </div>
+                    <multiSelect class="w-full"></multiSelect>
+                    <p>hello</p>
+                    <p>hola</p>
+                    <p>gutentag</p>
                 </div>
-                <multiSelect class="w-full"></multiSelect>
-                <p>hello</p>
-                <p>hola</p>
-                <p>gutentag</p>
             </div>
         </div>
 
