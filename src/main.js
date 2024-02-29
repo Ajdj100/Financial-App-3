@@ -31,7 +31,6 @@ FOREIGN KEY (transactionID) REFERENCES transactions(ID),
 FOREIGN KEY (groupID) REFERENCES groups(ID)
 );
 COMMIT;`);
-console.log(init);
 
 // const result = await db.execute("INSERT INTO transactions (name, value, date) VALUES (?, ?, ?)", ['test', 25.99, Date.now()]);
 // console.log(result);
