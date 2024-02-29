@@ -44,11 +44,11 @@ function setNewColor(color) {
 }
 
 //todo UPDATE THIS PLS
-function updateGroup() {
-    let oldName = currentTag.value.name;
-    currentTag.value.name = document.getElementById("updateNameBox").value;
-    currentTag.value.color = currentColor.value.name;
-    tags[oldName] = currentTag.value;
+async function updateGroup() {
+    let ID = currentTag.value.ID;
+    var res = await db.execute("UPDATE groups SET name=?, color=? WHERE ID=?", [document.getElementById("updateNameBox").value, currentTag.value.color, ID]);
+    console.log(res);
+    tags.value = await getTags();
 }
 
 function addFilter(group, filterText) {
@@ -70,6 +70,13 @@ async function deleteGroup() {
     var res = await db.execute("DELETE FROM groups WHERE ID = ?", [currentTag.value.ID])
     tags.value = await getTags();
 }
+
+function setCurrentColor(color) {
+    currentTag.value.color = color;
+    document.getElementById("dumbButton").focus();
+}
+
+
 
 </script>
 
@@ -96,7 +103,7 @@ async function deleteGroup() {
                             class="dropdown-content z-[5] menu p-2 shadow bg-base-100 rounded-box w-fit max-h-52 flex-nowrap overflow-scroll overflow-x-hidden">
                             <li v-for="color in colors">
                                 <div @click="setCurrentColor(color)">
-                                    <a class="size-5 rounded-full m-2 p-1" :style="{ backgroundColor: color.hexCode }"></a>
+                                    <a class="size-5 rounded-full m-2 p-1" :style="{ backgroundColor: color }"></a>
                                 </div>
                             </li>
                         </ul>
@@ -217,9 +224,7 @@ async function deleteGroup() {
                                         {{ tag.name }}
                                     </td>
                                 </div>
-
                             </tr>
-
                         </tbody>
                 </table>
             </div>
