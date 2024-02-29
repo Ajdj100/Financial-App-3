@@ -1,88 +1,50 @@
 <script setup>
 import { ref } from 'vue'
+import { db } from '@/main';
 
-// var tags = {
-//     "Food": {
-//         name: "Food",
-//         color: "red",
-//         keywords: [
-//             'McDonalds',
-//             'Harveys',
-//             'Tim Hortons',
-//             'Swiss Chalet',
-//             'Pennys',
-//             'Johnny Frescoes'
-//         ]
-//     },
-//     "Junk": {
-//         name: "Junk",
-//         color: "orange"
-//     },
-//     "Transportation": {
-//         name: "Transportation",
-//         color: "blue"
-//     },
-//     "Entertainment": {
-//         name: "Entertainment",
-//         color: "yellow"
-//     }
-// };
+var tags = ref(await getTags());
+
+var reloader = ref(false);
+
 const colors = {
-    red: {
-        name: 'red',
-        hexCode: '#FF5050'
-    },
-    orange: {
-        name: 'orange',
-        hexCode: '#FF9442'
-    },
-    yellow: {
-        name: 'yellow',
-        hexCode: '#FFE642'
-    },
-    green: {
-        name: 'green',
-        hexCode: '#8EFF42'
-    },
-    teal: {
-        name: 'teal',
-        hexCode: '#42FFA4'
-    },
-    blue: {
-        name: 'blue',
-        hexCode: '#32DDFF'
-    },
-    purple: {
-        name: 'purple',
-        hexCode: '#7B4BFF'
-    },
-    purple2: {
-        name: 'purple2',
-        hexCode: '#C64BFF'
-    },
-    pink: {
-        name: 'pink',
-        hexCode: '#FF6BBA'
-    }
-};
+    red: '#FF5050',
+    orange: '#FF9442',
+    yellow: '#FFE642',
+    green: '#8EFF42',
+    teal: '#42FFA4',
+    blue: '#32DDFF',
+    purple: '#7B4BFF',
+    purple2: '#C64BFF',
+    pink: '#FF6BBA'
+}
 
 //tag manipulation stuff
-var currentTag = ref(tags['Food']);
-var currentColor = ref(colors[currentTag.value.color])
+var currentTag = ref(tags.value[0]);
 
-function viewTag(tag) {
-    currentTag.value = tags[tag];
+//new group stuff
+var newGroupColor = ref(colors.red);
+var newGroupName = ref('');
+
+//update group stuff
+var updateGroupName = ref(currentTag.value.name);
+var updateGroupColor = ref(currentTag.value.color);
+
+async function getTags() {
+    return await db.select('SELECT * FROM groups');
+}
+
+function viewTag(tagIndex) {
+    currentTag.value = tags.value[tagIndex];
     // setCurrentColor(currentTag.value.color)
 }
 
-function setCurrentColor(color) {
-    currentColor.value = color;
-    document.getElementById('dumbButton').focus();
+function setNewColor(color) {
+    newGroupColor.value = color;
+    document.getElementById('dumbButton2').focus();
 }
 
+//todo UPDATE THIS PLS
 function updateGroup() {
-    console.log(tags)
-    console.log(currentTag.value);
     let oldName = currentTag.value.name;
     currentTag.value.name = document.getElementById("updateNameBox").value;
     currentTag.value.color = currentColor.value.name;
@@ -91,6 +53,22 @@ function updateGroup() {
 
 function addFilter(group, filterText) {
     //TODO: Implement adding filter to database
+}
+
+async function addGroup() {
+    var res = await db.execute("INSERT INTO groups (name, color) VALUES (?, ?)", [this.newGroupName, this.newGroupColor]);
+    tags.value = await getTags();
+    // make a toast or something for visual feedback
+}
+
+function resetCreateGroupModal() {
+    this.newGroupColor = colors.red;
+    this.newGroupName = '';
+}
+
+async function deleteGroup() {
+    var res = await db.execute("DELETE FROM groups WHERE ID = ?", [currentTag.value.ID])
+    tags.value = await getTags();
 }
 
 </script>
@@ -112,7 +90,7 @@ function addFilter(group, filterText) {
                     <!-- dropdown for the color picker -->
                     <div id="colorFilter" class="dropdown">
                         <div tabindex="0" role="button" class="btn pl-4">
-                            <div class="size-4 rounded-full" :style="{ backgroundColor: currentColor.hexCode }"></div>
+                            <div class="size-4 rounded-full" :style="{ backgroundColor: currentTag.color }"></div>
                         </div>
                         <ul tabindex="0"
                             class="dropdown-content z-[5] menu p-2 shadow bg-base-100 rounded-box w-fit max-h-52 flex-nowrap overflow-scroll overflow-x-hidden">
@@ -157,7 +135,50 @@ function addFilter(group, filterText) {
                 </form>
                 <form method="dialog">
                     <!-- if there is a button in form, it will close the modal -->
-                    <button class="btn btn-error btn-outline">Delete</button>
+                    <button class="btn btn-error btn-outline" @click="deleteGroup()">Delete</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+ 
+    <!-- create group modal -->
+    <dialog id="createGroup" class="modal">
+        <div class="modal-box flex flex-col overflow-visible">
+            <button id="dumbButton2"></button>
+            <div>
+                <h3 class="font-bold text-lg pb-5">Create Group</h3>
+
+                <!-- dropdown for the color picker -->
+                <div id="colorFilter" class="dropdown">
+                    <div tabindex="0" role="button" class="btn m-1 pl-4">
+                        <div class="size-4 rounded-full" :style="{ backgroundColor: newGroupColor }"></div>
+                    </div>
+                    <ul tabindex="0"
+                        class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-fit max-h-52 flex-nowrap overflow-scroll overflow-x-hidden">
+                        <li v-for="color in colors">
+                            <div @click="setNewColor(color)">
+                                <a class="size-5 rounded-full m-2 p-1" :style="{ backgroundColor: color }"></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <input id="GroupNameInput" type="text" placeholder="Group Name" v-model="newGroupName"
+                    class="input w-full max-w-xs bg-base-200 m-1 relative bottom-1/2">
+
+            </div>
+
+            <div class="modal-action flex justify-between">
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Cancel</button>
+                </form>
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn btn-primary btn-outline" @click="addGroup()">Create</button>
                 </form>
             </div>
         </div>
@@ -166,7 +187,7 @@ function addFilter(group, filterText) {
         </form>
     </dialog>
 
-    <div class="bg-base-200 rounded-box px-5 py-3 flex flex-col w-full">
+    <div class="bg-base-200 rounded-box px-5 py-3 flex flex-col w-full" :key="reloader">
         <div>
             <h1>Groups</h1>
         </div>
@@ -175,22 +196,31 @@ function addFilter(group, filterText) {
             <div class="flex flex-col">
                 <table class="table w-60">
                     <thead class="border-b-2 border-current">
-                        <th class="text-lg pl-3">Group Name</th>
-                    </thead>
-                    <tbody>
-                        <tr v-for="tag in tags" class="border-b-2 border-b-base-300">
-                            <div class="hover:bg-base-100 cursor-pointer" @click="viewTag(tag.name)">
-                                <td class="flex flex-row items-center">
-                                    <div class="size-5 rounded-full mr-3 -ml-2"
-                                        :style="{ backgroundColor: colors[tag.color].hexCode }">
-                                    </div>
-                                    {{ tag.name }}
-                                </td>
+                        <th class="text-lg pl-3 flex items-center justify-between">Group Name
+                            <div onclick="createGroup.showModal()" @click="resetCreateGroupModal()"
+                                class="size-4 rounded-full mr-1 ml-1 outline outline-1 outline-current hover:cursor-pointer dropdown">
+                                <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                </svg>
                             </div>
+                        </th>
+                    </thead>
+                        <tbody>
+                            <tr v-for="(tag, index) in tags" class="border-b-2 border-b-base-300">
+                                <div class="hover:bg-base-100 cursor-pointer" @click="viewTag(index)">
+                                    <td class="flex flex-row items-center">
+                                        <div class="size-5 rounded-full mr-3 -ml-2"
+                                            :style="{ backgroundColor: tag.color }">
+                                        </div>
+                                        {{ tag.name }}
+                                    </td>
+                                </div>
 
-                        </tr>
+                            </tr>
 
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
             <div class="divider divider-horizontal"></div>
@@ -201,7 +231,8 @@ function addFilter(group, filterText) {
                 <!-- group header -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="size-5 rounded-full mr-3" :style="{ backgroundColor: colors[currentTag.color].hexCode }">
+                        <div class="size-5 rounded-full mr-3"
+                            :style="{ backgroundColor: currentTag.color }">
                         </div>
                         <h1>{{ currentTag.name }}</h1>
                     </div>
