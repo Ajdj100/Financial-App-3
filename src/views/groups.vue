@@ -18,6 +18,7 @@ const colors = {
 
 //tag manipulation stuff
 var currentTag = ref(tags.value[0]);
+var keywords = ref(getFilters());
 var currentIndex = ref(0);
 
 //new group stuff
@@ -43,8 +44,16 @@ function viewTag(tagIndex) {
     currentIndex.value = tagIndex;
 
     updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
-    ;
+
+    keywords.value = getFilters();
     // setCurrentColor(currentTag.value.color)
+}
+
+async function getFilters() {
+    const res = await db.select("SELECT * FROM filters WHERE groupID = ?", [currentTag.value.ID])
+    console.log(res);
+    keywords.value = res;
+    return res;
 }
 
 function setNewColor(color) {
@@ -76,8 +85,9 @@ function resetEditModal() {
 }
 
 async function deleteGroup() {
-    var res = await db.execute("DELETE FROM groups WHERE ID = ?", [currentTag.value.ID])
-    tags.value = await getTags();
+    const res1 = await db.execute("DELETE FROM filters WHERE groupID = ?", [currentTag.value.ID])
+    var res2 = await db.execute("DELETE FROM groups WHERE ID = ?", [currentTag.value.ID])
+    tags.value = await getTags();   //wtf why doesnt this work anymore
 }
 
 function setCurrentColor(color) {
@@ -107,18 +117,20 @@ function validateFilterInput() {
 
 async function addFilter() {
     console.log("hello world");
-    //TODO: Implement adding filter to database
     const res = await db.execute("INSERT INTO filters (groupID, value) VALUES (?, ?)", [currentTag.value.ID, newFilterText.value])
     console.log(res);
-    toggleFilterInput();
+    hideFilterInput();
+    getFilters();   //refresh the filter list
+    //TODO: hide the database input
+    //TODO: add notification for operation
 }
 
-function hello() {
-    console.log("test");
-}
-
-function deleteFilter() {
+async function deleteKeyword(filterID) {
     //TODO: do this stuff
+    const res = await db.execute("DELETE FROM filters WHERE ID = ?", [filterID])
+    console.log(res);
+    getFilters();   //refresh the filter list
+    //TODO: add notification for operation
 }
 
 
@@ -302,17 +314,16 @@ function deleteFilter() {
                             <input type="text" placeholder="Text" id="filterTextBox" v-model="newFilterText"
                                 @input="validateFilterInput()"
                                 class="input focus:border-none focus:outline-none pl-2 join-item"
-                                @focusout="hideFilterInput()"
-                                @keydown.enter="console.log('hello')">
-                            <button class="btn btn-primary join-item" 
-                                onclick="console.log('hello')">Add</button>
+                                @focusout="hideFilterInput()" @keydown.enter="addFilter()">
+                            <!-- <button class="btn btn-primary join-item" 
+                                onclick="console.log('hello')">Add</button> -->
                         </div>
                     </div>
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
-                        <div v-for="keyword in currentTag.keywords"
-                            class="hover:bg-[#4d5261] py-2 px-4 w-52 rounded-lg flex items-center justify-between hover:group-last:*:invisible">
-                            <p>{{ keyword }}</p>
+                        <div v-for="keyword in keywords"
+                            class="hover:bg-neutral py-2 px-4 w-52 rounded-lg flex items-center justify-between hover:group-last:*:invisible">
+                            <p>{{ keyword.value }}</p>
                             <!-- options -->
                             <div class="flex">
                                 <!-- edit button -->
@@ -326,7 +337,7 @@ function deleteFilter() {
                                     </svg>
                                 </div>
                                 <!-- delete button -->
-                                <div class="hover:text-red-400 cursor-pointer">
+                                <div class="hover:text-red-400 cursor-pointer" @click="deleteKeyword(keyword.ID)">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
                                         viewBox="0 0 24 24">
                                         <path fill="none" stroke="currentColor" stroke-linecap="round"
