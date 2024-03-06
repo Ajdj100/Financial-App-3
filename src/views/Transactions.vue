@@ -83,7 +83,7 @@ function test(name) {
         <div class="flex 2xl:flex-row 2xl:justify-start sm:flex-col-reverse sm:justify-end">
             <!-- table -->
             <div class="flex flex-col grow">
-                <table class="table h-full">
+                <table class="table h-fit">
                     <thead class="border-b-2 border-current">
                         <th>Name</th>
                         <th>Date</th>
