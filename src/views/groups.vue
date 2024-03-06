@@ -1,10 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { db } from '@/main';
 
 var tags = ref(await getTags());
-
-var reloader = ref(false);
 
 const colors = {
     red: '#FF5050',
@@ -15,19 +13,26 @@ const colors = {
     blue: '#32DDFF',
     purple: '#7B4BFF',
     purple2: '#C64BFF',
-    pink: '#FF6BBA'
-}
+    pink: '#FF6BBA',
+};
 
 //tag manipulation stuff
 var currentTag = ref(tags.value[0]);
+var currentIndex = ref(0);
 
 //new group stuff
 var newGroupColor = ref(colors.red);
-var newGroupName = ref('');
+var newGroupName = ref(currentTag.value.name);
 
 //update group stuff
 var updateGroupName = ref(currentTag.value.name);
 var updateGroupColor = ref(currentTag.value.color);
+
+var updateTag = ref(JSON.parse(JSON.stringify(currentTag.value)));
+
+var filterInput = ref(false);
+var newFilterText = ref('');
+var isFilterValid = ref(false);
 
 async function getTags() {
     return await db.select('SELECT * FROM groups');
@@ -35,6 +40,10 @@ async function getTags() {
 
 function viewTag(tagIndex) {
     currentTag.value = tags.value[tagIndex];
+    currentIndex.value = tagIndex;
+
+    updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
+    ;
     // setCurrentColor(currentTag.value.color)
 }
 
@@ -45,14 +54,10 @@ function setNewColor(color) {
 
 //todo UPDATE THIS PLS
 async function updateGroup() {
-    let ID = currentTag.value.ID;
-    var res = await db.execute("UPDATE groups SET name=?, color=? WHERE ID=?", [document.getElementById("updateNameBox").value, currentTag.value.color, ID]);
+    let ID = updateTag.value.ID;
+    var res = await db.execute("UPDATE groups SET name=?, color=? WHERE ID=?", [updateTag.value.name, updateTag.value.color, ID]);
     console.log(res);
     tags.value = await getTags();
-}
-
-function addFilter(group, filterText) {
-    //TODO: Implement adding filter to database
 }
 
 async function addGroup() {
@@ -66,18 +71,58 @@ function resetCreateGroupModal() {
     this.newGroupName = '';
 }
 
+function resetEditModal() {
+    this.updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
+}
+
 async function deleteGroup() {
     var res = await db.execute("DELETE FROM groups WHERE ID = ?", [currentTag.value.ID])
     tags.value = await getTags();
 }
 
 function setCurrentColor(color) {
-    currentTag.value.color = color;
+    updateTag.value.color = color;
     document.getElementById("dumbButton").focus();
 }
 
+async function showFilterInput() {
+    this.filterInput = true;
+    await nextTick();
+    document.getElementById("filterTextBox").focus();
+    newFilterText.value = '';
+}
+
+async function hideFilterInput() {
+    await nextTick();
+    this.filterInput = false;
+}
+
+function validateFilterInput() {
+    if (newFilterText.value == '') {
+        isFilterValid.value = false;
+    } else {
+        isFilterValid.value = true;
+    }
+}
+
+async function addFilter() {
+    console.log("hello world");
+    //TODO: Implement adding filter to database
+    const res = await db.execute("INSERT INTO filters (groupID, value) VALUES (?, ?)", [currentTag.value.ID, newFilterText.value])
+    console.log(res);
+    toggleFilterInput();
+}
+
+function hello() {
+    console.log("test");
+}
+
+function deleteFilter() {
+    //TODO: do this stuff
+}
 
 
+// document.getElementById("filterTextBox").addEventListener("focusout", hideFilterInput());
 </script>
 
 <template>
@@ -90,14 +135,14 @@ function setCurrentColor(color) {
             <div class="flex justify-between">
                 <div class="flex flex-col grow">
                     <label class="py-1">Name</label>
-                    <input type="text" class="input bg-base-200 mb-5" id="updateNameBox" :value="currentTag.name">
+                    <input type="text" class="input bg-base-200 mb-5" id="updateNameBox" v-model="updateTag.name">
                 </div>
                 <div class="flex flex-col ml-10">
                     <label class="py-1">Color</label>
                     <!-- dropdown for the color picker -->
                     <div id="colorFilter" class="dropdown">
                         <div tabindex="0" role="button" class="btn pl-4">
-                            <div class="size-4 rounded-full" :style="{ backgroundColor: currentTag.color }"></div>
+                            <div class="size-4 rounded-full" :style="{ backgroundColor: updateTag.color }"></div>
                         </div>
                         <ul tabindex="0"
                             class="dropdown-content z-[5] menu p-2 shadow bg-base-100 rounded-box w-fit max-h-52 flex-nowrap overflow-scroll overflow-x-hidden">
@@ -150,7 +195,7 @@ function setCurrentColor(color) {
             <button>close</button>
         </form>
     </dialog>
- 
+
     <!-- create group modal -->
     <dialog id="createGroup" class="modal">
         <div class="modal-box flex flex-col overflow-visible">
@@ -194,7 +239,7 @@ function setCurrentColor(color) {
         </form>
     </dialog>
 
-    <div class="bg-base-200 rounded-box px-5 py-3 flex flex-col w-full" :key="reloader">
+    <div class="bg-base-200 rounded-box px-5 py-3 flex flex-col w-full">
         <div>
             <h1>Groups</h1>
         </div>
@@ -206,26 +251,25 @@ function setCurrentColor(color) {
                         <th class="text-lg pl-3 flex items-center justify-between">Group Name
                             <div onclick="createGroup.showModal()" @click="resetCreateGroupModal()"
                                 class="size-4 rounded-full mr-1 ml-1 outline outline-1 outline-current hover:cursor-pointer dropdown">
-                                <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" width="16"
+                                    height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                                     <path
                                         d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                                 </svg>
                             </div>
                         </th>
                     </thead>
-                        <tbody>
-                            <tr v-for="(tag, index) in tags" class="border-b-2 border-b-base-300">
-                                <div class="hover:bg-base-100 cursor-pointer" @click="viewTag(index)">
-                                    <td class="flex flex-row items-center">
-                                        <div class="size-5 rounded-full mr-3 -ml-2"
-                                            :style="{ backgroundColor: tag.color }">
-                                        </div>
-                                        {{ tag.name }}
-                                    </td>
-                                </div>
-                            </tr>
-                        </tbody>
+                    <tbody>
+                        <tr v-for="(tag, index) in tags" class="border-b-2 border-b-base-300">
+                            <div class="hover:bg-base-100 cursor-pointer" @click="viewTag(index)">
+                                <td class="flex flex-row items-center">
+                                    <div class="size-5 rounded-full mr-3 -ml-2" :style="{ backgroundColor: tag.color }">
+                                    </div>
+                                    {{ tag.name }}
+                                </td>
+                            </div>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
             <div class="divider divider-horizontal"></div>
@@ -234,24 +278,35 @@ function setCurrentColor(color) {
             <div class="w-full rounded-box px-4 py-1">
 
                 <!-- group header -->
-                <div class="flex items-center justify-between">
+                <div class="flex sm:flex-col xl:flex-row sm:items-start xl:items-center justify-between">
                     <div class="flex items-center">
-                        <div class="size-5 rounded-full mr-3"
-                            :style="{ backgroundColor: currentTag.color }">
+                        <div class="size-5 rounded-full mr-3" :style="{ backgroundColor: tags[currentIndex].color }">
                         </div>
-                        <h1>{{ currentTag.name }}</h1>
+                        <h1>{{ tags[currentIndex].name }}</h1>
                     </div>
-                    <div>
-                        <button class="btn btn-error btn-outline mx-4" onclick="deleteGroup.showModal()">Delete
+                    <div class="flex sm:mt-3 xl:mt-0">
+                        <button class="btn btn-primary mr-4" onclick="editGroup.showModal()"
+                            @click="resetEditModal()">Edit Group</button>
+
+                        <button class="btn btn-error btn-outline" onclick="deleteGroup.showModal()">Delete
                             Group</button>
-                        <button class="btn btn-primary" onclick="editGroup.showModal()">Edit Group</button>
                     </div>
                 </div>
 
                 <!-- filter Words -->
                 <div>
-                    <div class="flex items-center justify-between my-1">
-                        <h2 class=" py-1 text-xl">Filter Names</h2>
+                    <div class="flex items-center justify-between my-1 h-[48px]">
+                        <h2 class=" py-1 text-xl">Filter Words</h2>
+                        <p v-show="!filterInput" class="link text-gray-500" @click="showFilterInput()">Add Filter</p>
+                        <div class="join h-fit" v-show="filterInput">
+                            <input type="text" placeholder="Text" id="filterTextBox" v-model="newFilterText"
+                                @input="validateFilterInput()"
+                                class="input focus:border-none focus:outline-none pl-2 join-item"
+                                @focusout="hideFilterInput()"
+                                @keydown.enter="console.log('hello')">
+                            <button class="btn btn-primary join-item" 
+                                onclick="console.log('hello')">Add</button>
+                        </div>
                     </div>
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
@@ -262,7 +317,8 @@ function setCurrentColor(color) {
                             <div class="flex">
                                 <!-- edit button -->
                                 <div class="hover:text-slate-100 cursor-pointer px-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 36 36">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                                        viewBox="0 0 36 36">
                                         <path fill="currentColor"
                                             d="M33.87 8.32L28 2.42a2.07 2.07 0 0 0-2.92 0L4.27 23.2l-1.9 8.2a2.06 2.06 0 0 0 2 2.5a2.14 2.14 0 0 0 .43 0l8.29-1.9l20.78-20.76a2.07 2.07 0 0 0 0-2.92M12.09 30.2l-7.77 1.63l1.77-7.62L21.66 8.7l6 6ZM29 13.25l-6-6l3.48-3.46l5.9 6Z"
                                             class="clr-i-outline clr-i-outline-path-1" />
@@ -271,7 +327,8 @@ function setCurrentColor(color) {
                                 </div>
                                 <!-- delete button -->
                                 <div class="hover:text-red-400 cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                                        viewBox="0 0 24 24">
                                         <path fill="none" stroke="currentColor" stroke-linecap="round"
                                             stroke-linejoin="round" stroke-width="1.5"
                                             d="m20 9l-1.995 11.346A2 2 0 0 1 16.035 22h-8.07a2 2 0 0 1-1.97-1.654L4 9m17-3h-5.625M3 6h5.625m0 0V4a2 2 0 0 1 2-2h2.75a2 2 0 0 1 2 2v2m-6.75 0h6.75" />
