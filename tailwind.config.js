@@ -13,6 +13,6 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: ["business"],
+    themes: ["business", "corporate"],
   },
 }
