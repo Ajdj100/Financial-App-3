@@ -90,6 +90,7 @@ import { RouterLink } from 'vue-router';
 <style scoped>
 .router-link-active {
     --tw-bg-opacity: 1;
-    background-color: rgb(75 85 99 / var(--tw-bg-opacity));
+    background-color: oklch(var(--p));
+    color: oklch(var(--pc));
 }
 </style>
