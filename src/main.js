@@ -9,7 +9,7 @@ BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS transactions(
 ID INTEGER PRIMARY KEY,
 name TEXT NOT NULL,
-value REAL NOT NULL,
+amount REAL NOT NULL,
 date INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS groups(
@@ -20,7 +20,7 @@ color TEXT NOT NULL
 CREATE TABLE IF NOT EXISTS filters(
 ID INTEGER PRIMARY KEY,
 groupID INTEGER NOT NULL,
-value TEXT NOT NULL,
+keyword TEXT NOT NULL,
 FOREIGN KEY (groupID) REFERENCES groups(id)
 );
 CREATE TABLE IF NOT EXISTS transactionGroups(
@@ -32,7 +32,7 @@ FOREIGN KEY (groupID) REFERENCES groups(ID)
 );
 COMMIT;`);
 
-// const result = await db.execute("INSERT INTO transactions (name, value, date) VALUES (?, ?, ?)", ['test', 25.99, Date.now()]);
+// const result = await db.execute("INSERT INTO transactions (name, amount, date) VALUES (?, ?, ?)", ['test', 25.99, Date.now()]);
 // console.log(result);
 
 export { db }
