@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { db } from '@/main';
 const props = defineProps(['text', 'tags', 'colors']);
 
 var currentOption = ref('');
@@ -9,6 +10,7 @@ const exitBtn = ref(null);
 
 
 function setCurrentOption(option) {
+    console.log(option);
     currentOption.value = option;
     document.getElementById('dumbButton').focus();
     createMode.value = false;
@@ -32,6 +34,25 @@ function activateCreateMode() {
 function reset() {
     currentOption.value = '';
     createMode.value = false;
+}
+
+async function submit() {
+    if (createMode.value == true) {
+        //create a group and add the filter to it
+        const res = await db.execute("INSERT INTO groups (name, color) VALUES (?, ?)", [document.getElementById('GroupNameInput').value, currentColor.value]);
+        console.log(res.lastInsertId);
+        //insert filter into new group
+        const res2 = await db.execute("INSERT INTO filters (groupID, keyword) VALUES (?, ?)", [res.lastInsertId, document.getElementById('FilterNameInput').value])
+        console.log(res2);
+    } else {
+        console.log(currentOption.value.ID);
+        //add the filter to the existing group
+        const res2 = await db.execute("INSERT INTO filters (groupID, keyword) VALUES (?, ?)", [currentOption.value.ID, document.getElementById('FilterNameInput').value])
+        console.log(res2);
+    }
+
+
+
 }
 
 </script>
@@ -61,10 +82,6 @@ function reset() {
                     <ul tabindex="0"
                         class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full max-h-52 flex-nowrap overflow-scroll overflow-x-hidden">
                         <li><a @click="activateCreateMode">Create New</a></li>
-                        <!-- TODO: add behaviour for creating text box in selection area when create new is selected
-                                if focus is lost and text box is empty, return to 'select a thing'
-                                if focus is lost and text box is not empty, lock in name and allow for settings changes
-                    -->
                         <li v-for="tag in tags"><a @click="setCurrentOption(tag)" class="border my-1"
                                 :style="{ borderColor: tag.color }">{{ tag.name }}</a></li>
                     </ul>
@@ -95,7 +112,7 @@ function reset() {
             </div>
 
             <p>Filter Keyword</p>
-            <input id="FilterNameInput" type="text" placeholder="Group Name"
+            <input id="FilterNameInput" type="text" placeholder="Filter Word"
                 class="input w-full max-w-xs bg-base-200 m-1 relative bottom-1/2" :value="text">
 
 
@@ -110,7 +127,7 @@ function reset() {
                 <div class="modal-action">
                     <form method="dialog">
                         <!-- if there is a button, it will close the modal -->
-                        <button class="btn btn-primary btn-outline" @click="reset()">Confirm</button>
+                        <button class="btn btn-primary btn-outline" @click="submit(); reset()">Confirm</button>
                     </form>
                 </div>
             </div>
