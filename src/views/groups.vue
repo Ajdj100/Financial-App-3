@@ -23,13 +23,10 @@ var currentIndex = ref(0);
 
 //new group stuff
 var newGroupColor = ref(colors.red);
-var newGroupName = ref(currentTag.value.name);
+var newGroupName = ref(';');
 
 //update group stuff
-var updateGroupName = ref(currentTag.value.name);
-var updateGroupColor = ref(currentTag.value.color);
-
-var updateTag = ref(JSON.parse(JSON.stringify(currentTag.value)));
+var updateTag = ref('');
 
 var filterInput = ref(false);
 var newFilterText = ref('');
@@ -50,10 +47,17 @@ function viewTag(tagIndex) {
 }
 
 async function getFilters() {
-    const res = await db.select("SELECT * FROM filters WHERE groupID = ?", [currentTag.value.ID])
-    console.log(res);
-    keywords.value = res;
-    return res;
+    console.log(currentTag.value);
+    let filters = null;
+    if(typeof currentTag.value !== "undefined") {
+        filters = await db.select("SELECT * FROM filters WHERE groupID = ?", [currentTag.value.ID])
+    }
+    keywords = filters;
+    return filters;
+}
+
+function showEditGroup(index) {
+    updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
 }
 
 function setNewColor(color) {
@@ -117,7 +121,7 @@ function validateFilterInput() {
 
 async function addFilter() {
     console.log("hello world");
-    const res = await db.execute("INSERT INTO filters (groupID, value) VALUES (?, ?)", [currentTag.value.ID, newFilterText.value])
+    const res = await db.execute("INSERT INTO filters (groupID, keyword) VALUES (?, ?)", [currentTag.value.ID, newFilterText.value])
     console.log(res);
     hideFilterInput();
     getFilters();   //refresh the filter list
@@ -131,6 +135,19 @@ async function deleteKeyword(filterID) {
     console.log(res);
     getFilters();   //refresh the filter list
     //TODO: add notification for operation
+}
+
+var editKeyword = ref(null);
+
+function showEditFilterModal(index) {
+    
+    editKeyword.value = keywords.value[index];
+    console.log(editKeyword.value);
+}
+
+//save the edited keyword to database
+async function saveEditKeyword() {
+    const res = await db.execute("UPDATE filters SET value = ? WHERE id = ?", [editKeyword.value, editKeyword]);
 }
 
 
@@ -251,6 +268,31 @@ async function deleteKeyword(filterID) {
         </form>
     </dialog>
 
+    <!-- edit filter Modal -->
+    <dialog id="editFilter" class="modal">
+        <div class="modal-box flex flex-col">
+            <h3 class="font-bold text-lg pb-5">Edit Filter</h3>
+            <div class="flex flex-col grow">
+                <label class="py-1">Name</label>
+                <input type="text" class="input bg-base-200 mb-5" id="updateNameBox" v-model="editKeyword">
+            </div>
+
+            <div class="modal-action flex justify-between">
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Cancel</button>
+                </form>
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn btn-primary btn-outline" @click="saveEditKeyword()">Update</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
     <div class="bg-base-200 rounded-box px-5 py-3 flex flex-col w-full">
         <div>
             <h1>Groups</h1>
@@ -287,7 +329,7 @@ async function deleteKeyword(filterID) {
             <div class="divider divider-horizontal"></div>
 
             <!-- group manager area -->
-            <div class="w-full rounded-box px-4 py-1">
+            <div class="w-full rounded-box px-4 py-1" v-if="currentTag">
 
                 <!-- group header -->
                 <div class="flex sm:flex-col xl:flex-row sm:items-start xl:items-center justify-between">
@@ -298,7 +340,7 @@ async function deleteKeyword(filterID) {
                     </div>
                     <div class="flex sm:mt-3 xl:mt-0">
                         <button class="btn btn-primary mr-4" onclick="editGroup.showModal()"
-                            @click="resetEditModal()">Edit Group</button>
+                            @click="resetEditModal(); showEditGroup()">Edit Group</button>
 
                         <button class="btn btn-error btn-outline" onclick="deleteGroup.showModal()">Delete
                             Group</button>
@@ -321,13 +363,14 @@ async function deleteKeyword(filterID) {
                     </div>
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
-                        <div v-for="keyword in keywords"
+                        <div v-for="(keyword, index) in keywords"
                             class="hover:bg-neutral py-2 px-4 w-52 rounded-lg flex items-center justify-between hover:group-last:*:invisible">
-                            <p>{{ keyword.value }}</p>
+                            <p>{{ keyword.keyword }}</p>
                             <!-- options -->
                             <div class="flex">
                                 <!-- edit button -->
-                                <div class="hover:text-slate-100 cursor-pointer px-2">
+                                <div class="hover:text-slate-100 cursor-pointer px-2"
+                                    @click="showEditFilterModal(index)" onclick="editFilter.showModal()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
                                         viewBox="0 0 36 36">
                                         <path fill="currentColor"
