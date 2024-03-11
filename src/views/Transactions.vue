@@ -6,50 +6,9 @@ import multiSelect from '../components/multiSelect.vue'
 
 import { db } from '@/main';
 
-var transactions = await db.select('SELECT * FROM transactions');
-console.log(transactions);
+var transactions = ref(await getTransactions());
+var tags = ref(await getTags());
 
-// const transactions = await db.select('SELECT * FROM transactions');
-// console.log(transactions);
-
-// var transactions = [
-//     {
-//         name: "McDonalds",
-//         date: Date.now(),
-//         value: 25.87,
-//         tags: ["Food", "Junk"],
-//     },
-//     {
-//         name: "Bus Pass",
-//         date: Date.now(),
-//         value: 10.00,
-//         tags: ["Transportation"],
-//     },
-//     {
-//         name: "Steam Game",
-//         date: Date.now(),
-//         value: 20.00,
-//         tags: ["Entertainment"],
-//     },]
-
-var tags = {
-    "Food": {
-        name: "Food",
-        color: "red"
-    },
-    "Junk": {
-        name: "Junk",
-        color: "orange"
-    },
-    "Transportation": {
-        name: "Transportation",
-        color: "blue"
-    },
-    "Entertainment": {
-        name: "Entertainment",
-        color: "yellow"
-    }
-};
 const colors = {
     red: '#FF5050',
     orange: '#FF9442',
@@ -64,6 +23,17 @@ const colors = {
 
 //groups modal information
 var currentName = ref('');
+
+async function getTransactions() {
+    const res = await db.select('SELECT * FROM transactions');
+    return res;
+}
+
+async function getTags() {
+    const res = await db.select('SELECT * FROM groups');
+    console.log(res);
+    return res;
+}
 
 function test(name) {
     this.currentName = name;
@@ -98,7 +68,7 @@ function test(name) {
                             <!-- date -->
                             <td class="w-40">{{ new Date(item.date).toDateString() }}</td>
                             <!-- price -->
-                            <td class="w-24"> ${{ item.value.toFixed(2) }}</td>
+                            <td class="w-24"> ${{ item.amount.toFixed(2) }}</td>
                             <!-- tags -->
                             <td class="w-96">
                                 <ul class="flex items-center">
