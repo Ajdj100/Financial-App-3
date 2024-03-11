@@ -51,7 +51,7 @@ function reset() {
                 <h3 class="font-bold text-lg">Add to Group</h3>
                 <!-- dropdown for the filter group -->
                 <div id="selectFilter" class="dropdown w-64">
-                    <div class="border rounded-btn m-1" :style="{ borderColor: colors[currentOption.color] }">
+                    <div class="border rounded-btn m-1" :style="{ borderColor: currentOption.color }">
                         <div id="dropdownButton" tabindex="0" role="button"
                             class="btn w-full border-5 border-solid justify-start">
                             {{ currentOption.name }}
@@ -66,7 +66,7 @@ function reset() {
                                 if focus is lost and text box is not empty, lock in name and allow for settings changes
                     -->
                         <li v-for="tag in tags"><a @click="setCurrentOption(tag)" class="border my-1"
-                                :style="{ borderColor: colors[tag.color] }">{{ tag.name }}</a></li>
+                                :style="{ borderColor: tag.color }">{{ tag.name }}</a></li>
                     </ul>
                 </div>
             </div>
