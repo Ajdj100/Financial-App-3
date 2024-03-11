@@ -31,9 +31,8 @@ function activateCreateMode() {
 
 function reset() {
     currentOption.value = '';
+    createMode.value = false;
 }
-
-const items = ['hello', 'something', 'hola', 'world', 'pls scroll', 'how many do I need', 'maybe just a few more', 'why wont you work', 'why do you open'];
 
 </script>
 
