@@ -69,6 +69,7 @@ async function updateGroup() {
     var res = await db.execute("UPDATE groups SET name=?, color=? WHERE ID=?", [updateTag.value.name, updateTag.value.color, ID]);
     console.log(res);
     tags.value = await getTags();
+    currentTag.value = tags.value[currentIndex.value];
 }
 
 async function addGroup() {
