@@ -136,16 +136,21 @@ async function deleteKeyword(filterID) {
 }
 
 var editKeyword = ref(null);
+var editKeywordIndex = ref(null);
 
 function showEditFilterModal(index) {
-    
+    console.log(keywords.value);
     editKeyword.value = keywords.value[index];
+    editKeywordIndex.value = index;
+    // keywordID = keywords.value[index].ID;
     console.log(editKeyword.value);
 }
 
 //save the edited keyword to database
 async function saveEditKeyword() {
-    const res = await db.execute("UPDATE filters SET value = ? WHERE id = ?", [editKeyword.value, editKeyword]);
+    console.log(editKeyword.value, keywordID.value);
+    const res = await db.execute("UPDATE filters SET keyword = ? WHERE id = ?", [editKeyword.value, keywordID.value]);
+    console.log(res);
 }
 
 
@@ -272,7 +277,7 @@ async function saveEditKeyword() {
             <h3 class="font-bold text-lg pb-5">Edit Filter</h3>
             <div class="flex flex-col grow">
                 <label class="py-1">Name</label>
-                <input type="text" class="input bg-base-200 mb-5" id="updateNameBox" v-model="editKeyword">
+                <input type="text" class="input bg-base-200 mb-5" id="updateNameBox" :value="editKeyword">
             </div>
 
             <div class="modal-action flex justify-between">
