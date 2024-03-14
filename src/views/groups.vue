@@ -17,9 +17,11 @@ const colors = {
 };
 
 //tag manipulation stuff
-var currentTag = ref(tags.value[0]);
-var keywords = ref(getFilters());
-var currentIndex = ref(0);
+var currentTag = ref(null);
+var keywords = ref(null);
+var currentIndex = ref(null);
+
+viewTag(0);
 
 //new group stuff
 var newGroupColor = ref(colors.red);
@@ -36,23 +38,19 @@ async function getTags() {
     return await db.select('SELECT * FROM groups');
 }
 
-function viewTag(tagIndex) {
+async function viewTag(tagIndex) {
     currentTag.value = tags.value[tagIndex];
     currentIndex.value = tagIndex;
 
-    updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
-
-    keywords.value = getFilters();
-    // setCurrentColor(currentTag.value.color)
+    keywords.value = await getFilters();
 }
 
 async function getFilters() {
-    console.log(currentTag.value);
     let filters = null;
     if(typeof currentTag.value !== "undefined") {
         filters = await db.select("SELECT * FROM filters WHERE groupID = ?", [currentTag.value.ID])
     }
-    keywords = filters;
+    keywords.value = filters;
     return filters;
 }
 
@@ -85,7 +83,7 @@ function resetCreateGroupModal() {
 }
 
 function resetEditModal() {
-    this.updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
+    updateTag.value = JSON.parse(JSON.stringify(currentTag.value));
 }
 
 async function deleteGroup() {
@@ -120,7 +118,6 @@ function validateFilterInput() {
 }
 
 async function addFilter() {
-    console.log("hello world");
     const res = await db.execute("INSERT INTO filters (groupID, keyword) VALUES (?, ?)", [currentTag.value.ID, newFilterText.value])
     console.log(res);
     hideFilterInput();
