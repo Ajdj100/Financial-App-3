@@ -25,8 +25,20 @@ const colors = {
 var currentName = ref('');
 
 async function getTransactions() {
-    const res = await db.select('SELECT * FROM transactions');
-    return res;
+    // const res = await db.select('SELECT * FROM transactions');
+    const res2 = await db.select(`SELECT transactions.ID, transactions.name, transactions.amount, transactions.date, GROUP_CONCAT(groups.ID) as groups
+                                    FROM transactions
+                                    LEFT JOIN filters ON transactions.name LIKE '%' || filters.keyword || '%'
+                                    LEFT JOIN groups ON filters.groupID = groups.ID
+                                    GROUP BY transactions.ID;
+                            `);
+    //preprocess transactions
+    res2.forEach(item => {
+        let groupList = item.groups.split(',');
+        item.groups = groupList;
+    });
+    console.log(res2);
+    return res2;
 }
 
 async function getTags() {
@@ -39,6 +51,12 @@ function test(name) {
     this.currentName = name;
     GroupsModal.showModal()
 }
+
+function findTagByID(id) {
+    return tags.value.find(item => item.ID === Number(id));
+}
+
+// console.log(findTagByID(1).color);
 
 // function deleteTransaction(transaction) {
 //     transactions
@@ -72,12 +90,12 @@ function test(name) {
                             <!-- tags -->
                             <td class="w-96">
                                 <ul class="flex items-center">
-                                    <template v-for="tag in item.tags">
+                                    <template v-for="group in item.groups">
                                         <span
-                                            class="badge badge-outline badge-secondary flex items-center ml-1 mr-1 first:ml-0"
-                                            :style="{ borderColor: colors[tags[tag].color], color: colors[tags[tag].color] }">
+                                            class="badge badge-outline badge-secondary rounded-full flex items-center ml-1 mr-1 first:ml-0"
+                                            :style="{ borderColor: findTagByID(group).color, color: findTagByID(group).color }">
                                             <div class="size-4 rounded-full mr-1 -ml-2"
-                                                :style="{ backgroundColor: colors[tags[tag].color] }">
+                                                :style="{ backgroundColor: findTagByID(group).color }">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     fill="bg-base-200"
                                                     class="bi bi-x fill-none hover:fill-base-200 hover:cursor-pointer"
@@ -86,7 +104,7 @@ function test(name) {
                                                         d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                                                 </svg>
                                             </div>
-                                            {{ tag }}
+                                            {{ findTagByID(group).name }}
                                         </span>
                                     </template>
                                     <!-- Add tag button -->
@@ -103,7 +121,8 @@ function test(name) {
                             </td>
                             <td>
                                 <div class="hover:text-red-400 hover:cursor-pointer transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                                        viewBox="0 0 24 24">
                                         <path fill="none" stroke="currentColor" stroke-linecap="round"
                                             stroke-linejoin="round" stroke-width="1.5"
                                             d="m20 9l-1.995 11.346A2 2 0 0 1 16.035 22h-8.07a2 2 0 0 1-1.97-1.654L4 9m17-3h-5.625M3 6h5.625m0 0V4a2 2 0 0 1 2-2h2.75a2 2 0 0 1 2 2v2m-6.75 0h6.75" />
@@ -149,14 +168,14 @@ function test(name) {
  -->
 
 
- <!-- 
+<!-- 
     I need to rework the add button for the groups on  a column to bring up a modal with the ability to add a string to a category, or to modify a category, or even create a new category.
 
     This dialog will also allow you to tune the name string to add to the group in case you want to make it more generic (ex. "Tim Hortons #1234" -> "Tim Hortons")
 
     oh my god I also have to figure out the color picker... pls no. We will start with like, 8 colors or something
-  -->   
+  -->
 
-  <!-- on clicking the X button on a group, a dialog should appear about removing that name from the filter group. -->
+<!-- on clicking the X button on a group, a dialog should appear about removing that name from the filter group. -->
 
-  <!-- Do I really want groups to be in the transactions page? -->
+<!-- Do I really want groups to be in the transactions page? -->
