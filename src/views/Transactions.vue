@@ -34,8 +34,14 @@ async function getTransactions() {
                             `);
     //preprocess transactions
     res2.forEach(item => {
+        if(item.groups == null) {
+            item.groups = [];
+            return;
+        }
         let groupList = item.groups.split(',');
         item.groups = groupList;
+
+
     });
     console.log(res2);
     return res2;
@@ -84,7 +90,7 @@ function findTagByID(id) {
                             <!-- name -->
                             <td class="w-64">{{ item.name }}</td>
                             <!-- date -->
-                            <td class="w-40">{{ new Date(item.date).toDateString() }}</td>
+                            <td class="w-44">{{ new Date(item.date).toDateString() }}</td>
                             <!-- price -->
                             <td class="w-24"> ${{ item.amount.toFixed(2) }}</td>
                             <!-- tags -->
