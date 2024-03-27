@@ -44,7 +44,7 @@ async function getTransactions() {
                             `);
     //preprocess transactions
     res2.forEach(item => {
-        if(item.groups == null) {
+        if (item.groups == null) {
             item.groups = [];
             return;
         }
@@ -90,9 +90,9 @@ async function reload() {
         <h1>Transactions</h1>
         <div class="flex 2xl:flex-row 2xl:justify-start sm:flex-col-reverse sm:justify-end">
             <!-- table -->
-            <div class="flex flex-col grow">
-                <table class="table h-fit">
-                    <thead class="border-b-2 border-current">
+            <div class="overflow-auto h-[calc(100vh-100px)]">
+                <table class="table">
+                    <thead class="border-b-2 border-current top-0 bg-base-200 sticky z-10">
                         <th>Name</th>
                         <th>Date</th>
                         <th>Value</th>
@@ -153,7 +153,9 @@ async function reload() {
                     </tbody>
                 </table>
             </div>
+            <!-- divider -->
             <div class="divider 2xl:divider-horizontal sm:divider-vertical sm:m-0"></div>
+            <!-- filters -->
             <div class="flex shrink 2xl:flex-col sm:items-start sm:flex-col min-w-80 sm:px-5">
                 <div class="flex flex-row justify-between w-full items-center">
                     <h1>Filters</h1>
