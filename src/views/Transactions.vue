@@ -26,11 +26,21 @@ var currentName = ref('');
 
 async function getTransactions() {
     // const res = await db.select('SELECT * FROM transactions');
-    const res2 = await db.select(`SELECT transactions.ID, transactions.name, transactions.amount, transactions.date, GROUP_CONCAT(groups.ID) as groups
-                                    FROM transactions
-                                    LEFT JOIN filters ON transactions.name LIKE '%' || filters.keyword || '%'
-                                    LEFT JOIN groups ON filters.groupID = groups.ID
-                                    GROUP BY transactions.ID;
+    const res2 = await db.select(`
+    SELECT 
+        transactions.ID, 
+        transactions.name, 
+        transactions.amount, 
+        transactions.date, 
+        GROUP_CONCAT(DISTINCT groups.ID ORDER BY groups.ID) as groups
+    FROM 
+        transactions
+    LEFT JOIN 
+        filters ON transactions.name LIKE '%' || filters.keyword || '%'
+    LEFT JOIN 
+        groups ON filters.groupID = groups.ID
+    GROUP BY 
+        transactions.ID;
                             `);
     //preprocess transactions
     res2.forEach(item => {
