@@ -8,6 +8,7 @@ var currentColor = ref('#FF5050')
 var createMode = ref(false);
 const exitBtn = ref(null);
 
+const emit = defineEmits(['groupChange']);
 
 function setCurrentOption(option) {
     console.log(option);
@@ -51,7 +52,7 @@ async function submit() {
         console.log(res2);
     }
 
-
+    emit('groupChange');
 
 }
 

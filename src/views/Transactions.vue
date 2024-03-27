@@ -62,6 +62,10 @@ function findTagByID(id) {
     return tags.value.find(item => item.ID === Number(id));
 }
 
+async function reload() {
+    transactions.value = await getTransactions();
+}
+
 // console.log(findTagByID(1).color);
 
 // function deleteTransaction(transaction) {
@@ -71,7 +75,7 @@ function findTagByID(id) {
 </script>
 
 <template>
-    <createFilter :text="currentName" :tags="tags" :colors="colors"></createFilter>
+    <createFilter :text="currentName" :tags="tags" :colors="colors" @group-change="reload()"></createFilter>
     <div class="bg-base-200 rounded-box px-5 py-3 w-full h-full">
         <h1>Transactions</h1>
         <div class="flex 2xl:flex-row 2xl:justify-start sm:flex-col-reverse sm:justify-end">
