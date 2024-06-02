@@ -367,10 +367,10 @@ async function saveEditKeyword() {
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
 
-                        <table class="w-full text-left">
+                        <table class="w-full">
                             <thead>
-                                <th>Filter</th>
-                                <!-- <th>Something</th> -->
+                                <th class="text-left">Filter</th>
+                                <th>Actions</th>
                             </thead>
                             <tr v-for="(keyword, index) in keywords" class="p-2 hover:bg-neutral">
                                 <td class="text-xl">{{ keyword.keyword }}</td>
