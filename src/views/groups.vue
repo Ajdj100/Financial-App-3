@@ -367,11 +367,17 @@ async function saveEditKeyword() {
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
 
-                        <table class="w-full">
-                            <tr v-for="(keyword, index) in keywords" class="flex justify-between p-2 ">
+                        <table class="w-full text-left">
+                            <thead>
+                                <th>Filter</th>
+                                <!-- <th>Something</th> -->
+                            </thead>
+                            <tr v-for="(keyword, index) in keywords" class="p-2 hover:bg-neutral">
                                 <td class="text-xl">{{ keyword.keyword }}</td>
-                                <div class="flex">
-                                    <!-- edit button -->
+                                <!-- <td>
+                                    something
+                                </td> -->
+                                <td class="flex justify-center">
                                     <div class="hover:text-slate-100 cursor-pointer px-2"
                                         @click="showEditFilterModal(index)" onclick="editFilter.showModal()">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em"
@@ -382,8 +388,6 @@ async function saveEditKeyword() {
                                             <path fill="none" d="M0 0h36v36H0z" />
                                         </svg>
                                     </div>
-
-                                    <!-- delete button -->
                                     <div class="hover:text-red-400 cursor-pointer" @click="deleteKeyword(keyword.ID)">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em"
                                             viewBox="0 0 24 24">
@@ -392,7 +396,8 @@ async function saveEditKeyword() {
                                                 d="m20 9l-1.995 11.346A2 2 0 0 1 16.035 22h-8.07a2 2 0 0 1-1.97-1.654L4 9m17-3h-5.625M3 6h5.625m0 0V4a2 2 0 0 1 2-2h2.75a2 2 0 0 1 2 2v2m-6.75 0h6.75" />
                                         </svg>
                                     </div>
-                                </div>
+                                </td>
+
                             </tr>
                         </table>
                     </div>
