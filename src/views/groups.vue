@@ -47,7 +47,7 @@ async function viewTag(tagIndex) {
 
 async function getFilters() {
     let filters = null;
-    if(typeof currentTag.value !== "undefined") {
+    if (typeof currentTag.value !== "undefined") {
         filters = await db.select("SELECT * FROM filters WHERE groupID = ?", [currentTag.value.ID])
     }
     keywords.value = filters;
@@ -366,38 +366,38 @@ async function saveEditKeyword() {
                     </div>
 
                     <div class="bg-base-100 rounded-box p-3 flex flex-wrap">
-                        <div v-for="(keyword, index) in keywords"
-                            class="hover:bg-neutral py-2 px-4 w-52 rounded-lg flex items-center justify-between hover:group-last:*:invisible">
-                            <p>{{ keyword.keyword }}</p>
-                            <!-- options -->
-                            <div class="flex">
-                                <!-- edit button -->
-                                <div class="hover:text-slate-100 cursor-pointer px-2"
-                                    @click="showEditFilterModal(index)" onclick="editFilter.showModal()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
-                                        viewBox="0 0 36 36">
-                                        <path fill="currentColor"
-                                            d="M33.87 8.32L28 2.42a2.07 2.07 0 0 0-2.92 0L4.27 23.2l-1.9 8.2a2.06 2.06 0 0 0 2 2.5a2.14 2.14 0 0 0 .43 0l8.29-1.9l20.78-20.76a2.07 2.07 0 0 0 0-2.92M12.09 30.2l-7.77 1.63l1.77-7.62L21.66 8.7l6 6ZM29 13.25l-6-6l3.48-3.46l5.9 6Z"
-                                            class="clr-i-outline clr-i-outline-path-1" />
-                                        <path fill="none" d="M0 0h36v36H0z" />
-                                    </svg>
+
+                        <table class="w-full">
+                            <tr v-for="(keyword, index) in keywords" class="flex justify-between p-2 ">
+                                <td class="text-xl">{{ keyword.keyword }}</td>
+                                <div class="flex">
+                                    <!-- edit button -->
+                                    <div class="hover:text-slate-100 cursor-pointer px-2"
+                                        @click="showEditFilterModal(index)" onclick="editFilter.showModal()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em"
+                                            viewBox="0 0 36 36">
+                                            <path fill="currentColor"
+                                                d="M33.87 8.32L28 2.42a2.07 2.07 0 0 0-2.92 0L4.27 23.2l-1.9 8.2a2.06 2.06 0 0 0 2 2.5a2.14 2.14 0 0 0 .43 0l8.29-1.9l20.78-20.76a2.07 2.07 0 0 0 0-2.92M12.09 30.2l-7.77 1.63l1.77-7.62L21.66 8.7l6 6ZM29 13.25l-6-6l3.48-3.46l5.9 6Z"
+                                                class="clr-i-outline clr-i-outline-path-1" />
+                                            <path fill="none" d="M0 0h36v36H0z" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- delete button -->
+                                    <div class="hover:text-red-400 cursor-pointer" @click="deleteKeyword(keyword.ID)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em"
+                                            viewBox="0 0 24 24">
+                                            <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                                stroke-linejoin="round" stroke-width="1.5"
+                                                d="m20 9l-1.995 11.346A2 2 0 0 1 16.035 22h-8.07a2 2 0 0 1-1.97-1.654L4 9m17-3h-5.625M3 6h5.625m0 0V4a2 2 0 0 1 2-2h2.75a2 2 0 0 1 2 2v2m-6.75 0h6.75" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <!-- delete button -->
-                                <div class="hover:text-red-400 cursor-pointer" @click="deleteKeyword(keyword.ID)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
-                                        viewBox="0 0 24 24">
-                                        <path fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round" stroke-width="1.5"
-                                            d="m20 9l-1.995 11.346A2 2 0 0 1 16.035 22h-8.07a2 2 0 0 1-1.97-1.654L4 9m17-3h-5.625M3 6h5.625m0 0V4a2 2 0 0 1 2-2h2.75a2 2 0 0 1 2 2v2m-6.75 0h6.75" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-
             </div>
         </div>
-
     </div>
 </template>
